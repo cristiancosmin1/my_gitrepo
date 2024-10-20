@@ -1,0 +1,8 @@
+---
+- name: Timesync
+  hosts: all
+  become: true
+  vars:
+    timesync_ntp_servers:
+      - hostname: 192.168.56.138
+        iburst: true

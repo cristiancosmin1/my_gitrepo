@@ -1,0 +1,49 @@
+---
+-  hosts: other 
+   gather_facts: false
+   become: true
+   vars:
+        ansible_ssh_user: "{{ user }}"
+        ansible_ssh_pass: "{{ pass }}"
+
+   vars_prompt:
+      - name: "user"
+        prompt: "User"
+        private: no
+      - name: "pass"
+        prompt: "Enter password"
+        private: yes
+
+   tasks:
+    - ansible.builtin.shell:
+        cmd: "{{item}}"
+      loop:
+        - vgcreate backupvg /dev/sdc
+        - lvcreate -L +100G -n pgarclv backupvg
+        - lvcreate -l +100%FREE -n pgbaclv backupvg
+        - lvcreate -L +300G -n pgdatlv datavg
+        - lvcreate -L +50G -n pgwallv datavg
+        - lvcreate -l +100%FREE -n pgloglv datavg
+        - mkdir /pg_data /pg_wal /pg_log /pg_archive /pg_backup
+        - mkfs.xfs /dev/mapper/datavg-pgdatlv
+        - mkfs.xfs /dev/mapper/datavg-pgwallv
+        - mkfs.xfs /dev/mapper/datavg-pgloglv
+        - mkfs.xfs /dev/mapper/backupvg-pgarclv
+        - mkfs.xfs /dev/mapper/backupvg-pgbaclv
+        - mount /dev/mapper/datavg-pgdatlv /pg_data
+        - mount /dev/mapper/datavg-pgwallv /pg_wal
+        - mount /dev/mapper/datavg-pgloglv /pg_log
+        - mount /dev/mapper/backupvg-pgarclv /pg_archive
+        - mount /dev/mapper/backupvg-pgbaclv /pg_backup
+      ignore_errors:  yes
+    - ansible.builtin.blockinfile:
+        path: /etc/fstab
+        block: |
+          /dev/mapper/datavg-pgdatlv       /pg_data      xfs     defaults        0 0
+          /dev/mapper/datavg-pgwallv       /pg_wal      xfs     defaults        0 0
+          /dev/mapper/datavg-pgloglv       /pg_log      xfs     defaults        0 0
+          /dev/mapper/backupvg-pgarclv     /pg_archive    xfs     defaults        0 0
+          /dev/mapper/backupvg-pgbaclv     /pg_backup     xfs     defaults        0 0
+        marker: "---"
+          
+          
