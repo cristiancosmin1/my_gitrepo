@@ -1,0 +1,37 @@
+
+Container
+- Pull a container image
+- Run a container image
+- Map the container to a local directory
+- Run the container as service
+
+
+podman login
+yum group install ‘Container Management’ -y
+podman search httpd
+podman images
+podman rmi
+podman ps -a
+podman run -d --name testing a9e8074986dc
+podman run -d --name testing2 -p 8080:80 a9e8074986dc
+podman exec -it webserver2 /bin/bash
+podman run -d --name pest -p 777:80 -v /testweb:/usr/local/apache2/htdocs docker.io/library/httpd:latest 
+podman generate systemd pest > /etc/systemd/system/pest.service
+curl localhost:777/test.html
+ssh test@controller
+mkdir -p /home/test/.config/systemd/
+podman generate systemd web2 > /home/test/.config/systemd/user/testuser.service
+systemctl --user daemon-reload
+systemctl --user enable --now testuser.service
+
+
+[root@controller ~]# for a in {1..10}; do
+> useradd user$a
+> done
+
+
+vgcreate -s 8M newvg /dev/vdb
+lvcreate -l 10 -n testlv newvg
+mount /dev/mapper/newvg-testlv /mounttest/
+
+
