@@ -1,0 +1,52 @@
+---
+- name: VLAN eth1
+  hosts: servers
+  gather_facts: false
+  become: true
+  tasks:
+      - name: Creat ifcfg-eth1 file
+        ansible.builtin.file:
+          path:  /etc/sysconfig/network-scripts/ifcfg-eth1 
+          owner: root 
+          group: root
+          mode: '0644'
+          state: touch 
+      
+      - name: Configure eth1 network interface 
+        ansible.builtin.lineinfile:
+          path: /etc/sysconfig/network-scripts/ifcfg-eth1
+          state: present
+          line: "{{item}}"
+        loop:
+          - DEVICE=eth1
+          - TYPE=Ethernet
+          - ONBOOT=yes
+          - BOOTPROTO=none
+          - DOMAIN='snm.snecma snecma sns.snecma extranet.snecma'
+          - DEFROUTE=no
+          - IPV4_FAILURE_FATAL=no
+          - IPV6INIT=no
+          - NAME="System eth1"
+          - IPADDR={{new_ip}}
+          - GATEWAY=10.30.64.1
+          - NETMASK=255.255.240.0
+          - DNS1=10.210.87.132
+          - DNS2=10.108.194.14
+          - DNS3=128.23.1.8
+
+      - name: down eth1
+        command: ifdown eth1 
+        async: 2 
+        poll: 0
+        ignore_errors: yes
+
+      - name: up eth1
+        command: nmcli connection up System\ eth1
+        async: 2
+        poll: 0
+        ignore_errors: yes
+
+
+
+
+

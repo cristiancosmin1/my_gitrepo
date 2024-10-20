@@ -1,0 +1,6 @@
+---
+- name: Use the Apache role
+  hosts: webservers
+  become: true
+  roles:
+    - apache

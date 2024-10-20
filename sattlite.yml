@@ -1,0 +1,21 @@
+---
+- name: Sattelite
+  hosts: all 
+  gather_facts: false
+  become: yes
+  vars: 
+    - env: "OP"
+    - user: "dt84268a"
+  tasks:
+    - name: Get bootstrap 
+      ansible.builtin.uri:
+        url: "http://s11280k0/pub/bootstrap.py"
+        dest: /root/
+        method: GET
+    - name: Connect it 
+      ansible.builtin.shell: |
+         cd /root
+         chmod +x bootstrap.py
+         subscription-manager clean
+         /usr/libexec/platform-python bootstrap.py --login={{user}} --password={{user}} --server s11280k0.snm.snecma --location='Worldwide' --organization='Safran Aircraft Engines' --hostgroup='Linux-VM/{{env}}/VLAN382/RHEL8' --activationkey="RHEL8.X" --force --install-katello-agent
+         rm -f bootstrap.py

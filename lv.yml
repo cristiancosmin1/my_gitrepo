@@ -1,0 +1,38 @@
+---
+- name: Create logical volume
+  hosts: all
+  become: true
+  tasks:
+    - block:
+        - name: Create the FS of 1500MiB
+          community.general.lvol:
+            vg: research
+            lv: data
+            size: 1500
+          when: ansible_lvm.vgs.research.size_g > "1500 MiB"
+        - block:
+           - name: Display message
+             ansible.builtin.debug:
+               msg: "Not enough space"
+           - name: Create the FS of 800MiB
+             community.general.lvol:
+              vg: research
+              lv: data
+              size: 800
+          when: ansible_lvm.vgs.research.size_g < "800 MiB"
+        - name: Format the FS
+          community.general.filesystem:
+            fstype: ext4
+            dev: /dev/research/data
+            force: true
+      when: ansible_lvm.vgs.research is defined
+    
+    - name: Display message if the vg is not present
+      ansible.builtin.debug:
+        msg: "No vg named research"
+      when: ansible_lvm.vgs.research is not defined
+     
+
+
+
+

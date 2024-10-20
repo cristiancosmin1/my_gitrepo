@@ -1,0 +1,33 @@
+---
+  - name: install/reinstall Flexera
+    hosts: flexera 
+    gather_facts: true
+    become: true
+    tasks:
+    - name: Remove the old agent version
+      yum:
+       name: managesoft
+       state: absent
+    - name: Copy the package folder
+      copy:
+       src: /usr/OneSubnet/One_package_for_unix_v20.zip
+       dest: /tmp
+    - name: unzip 
+      unarchive: 
+       src: /tmp/One_package_for_unix_v20.zip
+       dest: /tmp
+       remote_src: yes
+    - name: Install the agent 
+      shell: |
+       chmod +x /tmp/One_package_for_unix/flexia-setup.sh
+       bash /tmp/One_package_for_unix/flexia-setup.sh 
+    - package_facts:
+      register: pkgs
+    - debug:
+       msg: "Flexera installed on {{ansible_hostname}}"
+      when: pkgs.ansible_facts.packages.httpd != 0
+      ignore_errors: yes
+    - file:
+       path: /tmp/One_package_for_unix 
+       state: absent
+
