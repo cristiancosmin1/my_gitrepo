@@ -1,0 +1,34 @@
+pcs cluster auth <node1> <node2> ...        # Authenticate nodes
+pcs cluster setup --name <clustername> <node1> <node2> ...
+pcs cluster start --all                     # Start cluster on all nodes
+pcs cluster stop --all                      # Stop cluster on all nodes
+pcs cluster status                          # Show cluster status
+pcs cluster standby <node>                  # Put node into standby mode
+pcs cluster unstandby <node>                # Bring node back from standby
+pcs cluster enable --all                    # Enable cluster start at boot
+pcs cluster disable --all                   # Disable cluster start at boot
+
+pcs resource create <resourcename> <agent> [options]     # Create resource
+pcs resource delete <resourcename>                       # Delete resource
+pcs resource move <resourcename> [<node>]                # Move resource
+pcs resource ban <resourcename> <node>                   # Ban from node
+pcs resource clear <resourcename> [<node>]               # Clear constraints
+pcs resource show                                        # List resources
+
+pcs constraint location <res> prefers <node>=<score>     # Location preference
+pcs constraint order <res1> then <res2>                  # Ordering constraint
+pcs constraint colocation add <res1> with <res2>         # Colocation constraint
+
+pcs property set stonith-enabled=false   # Disable fencing (not for production!)
+pcs property list                        # Show cluster properties
+
+crm status                 # Show cluster status
+crm configure              # Enter interactive config shell
+crm configure show         # Show current configuration
+crm resource start <res>   # Start resource
+crm resource stop <res>    # Stop resource
+crm node standby <node>    # Put node into standby
+crm node online <node>     # Bring node online
+
+
+
